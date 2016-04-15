@@ -6,6 +6,7 @@ import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.repository.annotations.JsonApiFindOne;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.spring.domain.model.Task;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -16,6 +17,7 @@ import java.util.TimeZone;
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
 
+    @Secured("ROLE_ADMIN")
     @JsonApiFindAll
     public Iterable<Task> findAll(TimeZone timeZone, QueryParams queryParams) {
         return findAll(null, timeZone, queryParams);

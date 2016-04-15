@@ -25,6 +25,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.Filter;
 
@@ -55,6 +65,27 @@ public class KatharsisConfigV2 {
     @Bean
     public Filter springBootSampleKatharsisFilter() {
         return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, properties.getPathPrefix());
+    }
+
+    @Configuration
+    @Order(1)
+    @EnableGlobalMethodSecurity(securedEnabled = true)
+    public static class RestWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
+                .withUser("user").password("password").roles("ADMIN");
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.httpBasic();
+            http
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/*").authenticated();
+        }
     }
 }
 
